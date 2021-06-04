@@ -60,9 +60,6 @@ var dateFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 
 var mapdiv = document.getElementById("map");
 var pointWeatherData = document.getElementById("pointWeatherData");
 var weatherbutton = document.getElementById("weatherbutton");
-var lngDisplay = document.getElementById('lng');
-var latDisplay = document.getElementById('lat');
-var eleDisplay = document.getElementById('ele');
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoia3VwZmVydSIsImEiOiJja3A4NXpwYmkwMTV6MnBsbG9lcTYwdzhwIn0.XUB-OlC2DnKVvK8eP0z22w';
 
@@ -117,14 +114,20 @@ class WeatherBtnControl {
 /*         btn.onclick = function () {
             showweather();
         };
- */        btn.innerHTML = `<div>
-              <button id="btn" onclick="showweather()">
-                <img src="https://api.met.no/images/weathericons/svg/clearsky_day.svg" width="50px" />       
+ */        btn.innerHTML = `
+    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+        <button id="weatherBtn" onclick="showweather()">
+            <img src="https://api.met.no/images/weathericons/svg/clearsky_day.svg" width="60px" />       
         </button>
-        <button id="btn1" onclick="showwiki()">
-        <img src="https://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-Wikipedia-alt-2-Metro-icon.png" width="50px" />       
-</button>
-</div>`;
+        <button id="wikiBtn" onclick="showwiki()">
+            <img src="https://icons.iconarchive.com/icons/dakirby309/windows-8-metro/128/Web-Wikipedia-alt-2-Metro-icon.png" width="60px" />       
+        </button>
+        <button type="button" class="btn btn-info" id="infoBtn" onclick="getmoreinfo()" >
+            <div>Longitude: <span id='lng'>123</span></div>
+            <div>Latitude: <span id='lat'></span></div>
+            <div>Elevation: <span id='ele'></span></div>
+        </button>
+    </div>`;
         this._container.appendChild(btn);
         return this._container;
     }
@@ -134,6 +137,18 @@ class WeatherBtnControl {
         this._map = undefined;
     }
 }
+
+weatherBtnControl = new WeatherBtnControl();
+map.addControl(weatherBtnControl, 'top-left');
+var lngDisplay = document.getElementById('lng');
+var latDisplay = document.getElementById('lat');
+var eleDisplay = document.getElementById('ele');
+var weatherBtn = document.getElementById('weatherBtn');
+var wikiBtn = document.getElementById('wikiBtn');
+var infoBtn = document.getElementById('infoBtn');
+infoBtn.style.display = "none";
+weatherBtn.style.display = "none";
+wikiBtn.style.display = "none";
 
 map.on('load', function () {
     map.addSource('dem', {
@@ -180,16 +195,13 @@ map.on('click', function (e) {
 });
 
 function mapclick(lng, lat) {
-    // Display the longitude and latitude values
+    infoBtn.style.display = "block";
+    weatherBtn.style.display = "none";
+    wikiBtn.style.display = "none";
     lngDisplay.textContent = lng.toFixed(2);
     latDisplay.textContent = lat.toFixed(2);
 
     //    map.flyTo({center: [lng, lat],});
-
-    if (weatherBtnControl != undefined) {
-        map.removeControl(weatherBtnControl)
-    }
-
     var l = new mapboxgl.LngLat(lng, lat);
 
     marker.setLngLat(l).addTo(map);
@@ -267,8 +279,12 @@ function getlongitude1(url) {
                 } else {
                     eleDisplay.textContent = elevation + ' m';
 
-                    weatherBtnControl = new WeatherBtnControl();
-                    map.addControl(weatherBtnControl, 'top-left');
+                    lngDisplay.textContent = lng.toFixed(2);
+                    latDisplay.textContent = lat.toFixed(2);
+                    eleDisplay.textContent = elevation + ' m';
+
+                    weatherBtn.style.display = "block";
+                    wikiBtn.style.display = "block";
                 }
             } catch (e) {
                 console.log('getlongitude1 err ' + newData);
@@ -379,7 +395,7 @@ function getWikiData(url) {
                 pointWeatherData.classList.add("show");
                 $('#pointWeatherData').draggable({ handle: ".modal-header" });
                 document.getElementById("exampleModalLabel").textContent = 'wiki points';
-            
+
                 s = `<div class="scroll-table-container">
                 <table class="table table-bordered border-primary" class="scrolldown">`;
                 //<a href= ${wikidata[i].url} target="_blank"rel=" noopener noreferrer">open link </a>
@@ -393,7 +409,7 @@ function getWikiData(url) {
                 }
                 s += `</table></div>`;
                 pointweathedata.innerHTML = s;
-            
+
             } catch (e) {
                 console.log('getWikiData err ' + newData);
             }
@@ -406,8 +422,8 @@ function showwiki() {
     getWikiData(url);
 }
 
-function wikitableItemClick(i) {  
-   map.flyTo({center: [wikidata[i].lon, wikidata[i].lat],});
+function wikitableItemClick(i) {
+    map.flyTo({ center: [wikidata[i].lon, wikidata[i].lat], });
     mapclick(wikidata[i].lon, wikidata[i].lat);
 }
 
@@ -652,8 +668,8 @@ function getElevation() {
         // Display the largest elevation value
         eleDisplay.textContent = elevation + ' m';
 
-        weatherBtnControl = new WeatherBtnControl();
-        map.addControl(weatherBtnControl, 'top-left');
+        weatherBtn.style.display = "block";
+        wikiBtn.style.display = "block";
     });
 }
 
