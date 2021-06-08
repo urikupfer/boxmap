@@ -11,40 +11,6 @@
 
 //https://docs.mapbox.com/mapbox.js/example/v1.0.0/custom-popup/
 
-/*       // Initialize and add the map
-      function initMap() {
-        // The location of Uluru
-        const uluru = { lat: -25.344, lng: 131.036 };
-        // The map, centered at Uluru
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 4,
-          center: uluru,
-        });
-        // The marker, positioned at Uluru
-        const marker = new google.maps.Marker({
-          position: uluru,
-          map: map,
-        });
-      }
-
-      function getReverseGeocodingData(lat, lng) {
-        var latlng = new google.maps.LatLng(lat, lng);
-        // This is making the Geocode request
-        var geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ 'latLng': latlng }, function (results, status) {
-            if (status !== google.maps.GeocoderStatus.OK) {
-                alert(status);
-            }
-            // This is checking to see if the Geoeode Status is OK before proceeding
-            if (status == google.maps.GeocoderStatus.OK) {
-                console.log(results);
-                var address = (results[0].formatted_address);
-            }
-        });
-    }
- */
-
-
 var layer;
 var chart;
 var chardata = [];
@@ -80,7 +46,8 @@ map.addControl(
     new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
-        marker: false
+        marker: false,
+        autocomplete: true
     })
 );
 
@@ -212,21 +179,63 @@ function mapclick(lng, lat) {
     url = `http://api.geonames.org/timezoneJSON?lat=${lat}&lng=${lng}&username=urikupfer`;
     getTimeZone(url);
 
+    url = `http://api.geonames.org/findNearestIntersectionOSMJSON?lat=${lat}&lng=${lng}&username=urikupfer`;
+    getAddress(url);
+
     /* Get the administrative location information using a set of known coordinates */
-    reverseGeocoder.getClientLocation({
+/*     reverseGeocoder.getClientLocation({
         latitude: lat,
         longitude: lng,
     }, function (result) {
-        console.log(result);
+        console.log('placeDescription '+result);
         placeDescription = '';
         var administrative = result.localityInfo.administrative;
         for (i = 0; i < administrative.length; i++) {
-            console.log(administrative[i].name);
+            console.log('placeDescription '+administrative[i].name);
             placeDescription += administrative[i].name + ',';
         }
-        console.log(placeDescription);
-        var d = document.getElementById('tz');
-        //        d.textContent=placeDescription;
+        console.log('placeDescription '+placeDescription);
+    });
+ */
+}
+
+async function getAddress(url){
+    $.ajax({
+        type: "GET",
+        url: url,
+        jsonp: "callback",
+        dataType: 'jsonp',
+        data: {
+            action: "query",
+            format: "json"
+        },
+        xhrFields: { withCredentials: true },
+        success: function (response) {
+            console.log('getAddress  ' + url);
+            console.log('getAddress  ' + response);
+            var newData;
+            try {
+                newData = JSON.stringify(response);
+                console.log('getAddress  ' + newData);
+                var obj = JSON.parse(newData);
+                var address = {
+                    street2Bearing: obj.intersection.street2Bearing,
+                    lng: obj.intersection.lng,
+                    distance: obj.intersection.distance,
+                    countryCode: obj.intersection.countryCode,
+                    highway1: obj.intersection.highway1,
+                    highway2: obj.intersection.highway2,
+                    street1: obj.intersection.street1,
+                    street2: obj.intersection.street2,
+                    street1Bearing: obj.intersection.street1Bearing,
+                    lat: obj.intersection.lat,
+                };
+                placeDescription=address.countryCode+ ' '+address.street1;
+                console.log('getAddress  ' + placeDescription);
+            } catch (e) {
+                console.log('getAddress err ' + e);
+            }
+        }
     });
 }
 
@@ -322,7 +331,7 @@ function getTimeZone(url) {
                     dstOffset: obj.dstOffset,
                     countryName: obj.countryName,
                     time: obj.time,
-                    lat: obj.lng,
+                    lng: obj.lng,
                     lat: obj.lat,
                 };
                 console.log('getTimeZone  ' + moreInfo.time);
