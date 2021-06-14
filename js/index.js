@@ -183,23 +183,23 @@ function mapclick(lng, lat) {
     getAddress(url);
 
     /* Get the administrative location information using a set of known coordinates */
-/*     reverseGeocoder.getClientLocation({
-        latitude: lat,
-        longitude: lng,
-    }, function (result) {
-        console.log('placeDescription '+result);
-        placeDescription = '';
-        var administrative = result.localityInfo.administrative;
-        for (i = 0; i < administrative.length; i++) {
-            console.log('placeDescription '+administrative[i].name);
-            placeDescription += administrative[i].name + ',';
-        }
-        console.log('placeDescription '+placeDescription);
-    });
- */
+    /*     reverseGeocoder.getClientLocation({
+            latitude: lat,
+            longitude: lng,
+        }, function (result) {
+            console.log('placeDescription '+result);
+            placeDescription = '';
+            var administrative = result.localityInfo.administrative;
+            for (i = 0; i < administrative.length; i++) {
+                console.log('placeDescription '+administrative[i].name);
+                placeDescription += administrative[i].name + ',';
+            }
+            console.log('placeDescription '+placeDescription);
+        });
+     */
 }
 
-async function getAddress(url){
+async function getAddress(url) {
     $.ajax({
         type: "GET",
         url: url,
@@ -230,7 +230,7 @@ async function getAddress(url){
                     street1Bearing: obj.intersection.street1Bearing,
                     lat: obj.intersection.lat,
                 };
-                placeDescription=address.countryCode+ ' '+address.street1;
+                placeDescription = address.countryCode + ' ' + address.street1;
                 console.log('getAddress  ' + placeDescription);
             } catch (e) {
                 console.log('getAddress err ' + e);
@@ -499,8 +499,8 @@ function loadTable(items) {
         }
         if (thisDay != d) {
             thisDay = d;
-            icontable += `<th scope="col" class='icon' id='thicon${j}'>
-                            <img src="https://api.met.no/images/weathericons/svg/${getIcon(iconString)}.svg" width="50px" height="50px">
+            icontable += `<th scope="col" class='icon' class="col-1" id='thicon${j}'>
+                            <img src="https://api.met.no/images/weathericons/svg/${getIcon(iconString)}.svg" width="100%" height="50px">
                         </th>`;
             iconString = '';
             j++;
@@ -537,6 +537,13 @@ function loadTable(items) {
             }
         );
     }
+
+    if (iconString != '') {
+        icontable += `<th scope="col" class="col-1" class='icon' id='thicon${j}'>
+        <img src="https://api.met.no/images/weathericons/svg/${getIcon(iconString)}.svg" width="100%" height="50px">
+    </th>`;
+    }
+
     tableData += `</tbody>`;
     document.getElementById("weatherdata").innerHTML = tableData;
 

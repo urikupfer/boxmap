@@ -32,15 +32,15 @@
 </head>
 
 <body>
-  <div class="container-fluid" style="position:fixed;top:0;left:0;right:0;height:100px;">
+  <div class="container" style="position:fixed;top:0;left:0;right:0;height:100px;">
     <h2>MapBox,CanvasJs and data from Wikipedia and Norway Weather</h2>
     <h5>click on the map and get data</h5>
     <div id="map" class="map"class="row"></div>
-    <div id="chartContainer" class='chart' class="row"></div>
+    <div id="chartContainer" class='chart' class="row" class="overflow-auto"></div>
 
     <table id="icontable" class="table table-bordered border-primary" class="icontable"class="row">
     </table>
-    <div class="scroll-table-container" class="row">
+    <div class="scroll-table-container" class="row" class="tableFixHead">
       <table class="table table-bordered border-primary" class="scrolldown" id="weatherdata">
       </table>
     </div>
